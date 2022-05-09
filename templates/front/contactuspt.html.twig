@@ -23,16 +23,16 @@
                         <input type="text" placeholder="Search..."/>
                     </div>
                 </div>
-                {% for p in patient %}
-                <div class="discussion ">
-                    <div class="photo">
+                {% for p in expert %}
+                    <div class="discussion ">
+                        <div class="photo">
+                        </div>
+                        <div class="desc-contact" >
+                            <a href="{{ path('app_messagerie_pt',{'idexpert':p.idExpert}) }}" class="name">{{ p.nom }} {{ p.prenom }}</a>
+                            <p class="message"></p>
+                        </div>
+                        <div class="timer">1 min</div>
                     </div>
-                    <div class="desc-contact" >
-                        <a href="{{ path('app_messagerie',{'idpatient':p.idPatient}) }}" class="name">{{ p.nom }} {{ p.prenom }}</a>
-                        <p class="message"></p>
-                    </div>
-                    <div class="timer">1 min</div>
-                </div>
                 {% endfor %}
             </section>
 
@@ -40,8 +40,8 @@
                 <div class="header-chat">
                     <i class="icon" aria-hidden="true"></i>
                     {% for t in n %}
-                        <p class="name">{{ t.nom | lower}} {{ t.prenom | upper}}</p>
-                        <a href="{{ path('list',{'id':t.idpatient}) }}" style="margin-left: 400px;"><i class="bi bi-file-earmark-pdf"></i></a>
+                    <p class="name">{{ t.nom | lower}} {{ t.prenom | upper}}</p>
+                    <a href="{{ path('listt',{'id':t.idexpert}) }}" style="margin-left: 400px;"><i class="bi bi-file-earmark-pdf"></i></a>
 
 
                 </div>
@@ -49,31 +49,30 @@
                 <div class="messages-chat"   style="height: 540px; overflow-y: scroll;">
                     {{ dump(messag) }}
                     {% for m in messag %}
-                        {% if m.IdEnv == m.idpatient and m.IdRec == m.idexpert  %}
-                        <div class="message ">
-                            <p class="text"> {{ m.Contenu }} </p>
-                        </div>
-                      {#   <p class="time"> {{ m.dateRecep | date('l d F - H:i') }}</p> #}
-
-                        {% elseif  m.IdEnv == m.idexpert and m.IdRec == m.idpatient   %}
-                        <div class="message " >
-                            <div class="response" >
-                                <p class="text"> {{ m.Contenu }}</p>
-
-
-                            <p class="response-time time" >
-                                    <button type="button" class="btn btn-primary btn-lg btn-floating btn-sm mb-2 " >
-
-                                        <a href="{{ path('modifierAction',{'id':m.idMessage}) }}"> <i class="bi bi-gear white" style="color:white" ></i> </a>
-                                    </button>
-                                    <button type="button" class="btn btn-primary btn-lg btn-floating btn-sm mb-2">
-
-                                        <a href="{{ path('suppAction',{'id':m.idMessage}) }}"> <i class="bi bi-trash" style="color:white"></i> </a>
-                                    </button>
-                               </p>
+                        {% if  m.IdEnv == m.idexpert and m.IdRec == m.idpatient  %}
+                            <div class="message ">
+                                <p class="text"> {{ m.Contenu }} </p>
                             </div>
+                            {#   <p class="time"> {{ m.dateRecep | date('l d F - H:i') }}</p> #}
+                        {% elseif  m.IdEnv == m.idpatient and m.IdRec == m.idexpert   %}
+                            <div class="message " >
+                                <div class="response" >
+                                    <p class="text"> {{ m.Contenu }}</p>
 
-                           {#  <button type="button" id="button" class="btn-outline-success clickable" style="color:black;" onclick="$(this).toggleClass('btn-success')"  >
+
+                                    <p class="response-time time" >
+                                        <button type="button" class="btn btn-primary btn-lg btn-floating btn-sm mb-2 " >
+
+                                            <a href="{{ path('modifierptAction',{'id':m.idMessage}) }}"> <i class="bi bi-gear white" style="color:white" ></i> </a>
+                                        </button>
+                                        <button type="button" class="btn btn-primary btn-lg btn-floating btn-sm mb-2">
+
+                                            <a href="{{ path('suppptAction',{'id':m.idMessage}) }}"> <i class="bi bi-trash" style="color:white"></i> </a>
+                                        </button>
+                                    </p>
+                                </div>
+
+                                {#  <button type="button" id="button" class="btn-outline-success clickable" style="color:black;" onclick="$(this).toggleClass('btn-success')"  >
 
                                     <i class="bi bi-hand-thumbs-up"  ></i>
                                 </button>
@@ -84,28 +83,28 @@
 
                                 </p> #}
 
-                        </div>
-                        {#  <p class="response-time time"> {{ m.dateRecep | date('l d F - H:i') }}</p> #}
+                            </div>
+                            {#  <p class="response-time time"> {{ m.dateRecep | date('l d F - H:i') }}</p> #}
                         {% endif %}
                     {% endfor %}
                     {% endfor %}
 
-       </div>
-           {{ form_start(form,{'attr':{novalidate:'novalidate'}}) }}
-            <div class="footer-chat">
-                <div class="col-sm-12">
-                    <form class="float-sm-right">
-                        <div class="form-group">
-                            <div class="input-group">
-                                {{ form_widget(form.Contenu , {  'id':"contenu" , 'attr' : {'placeholder':"chat message" , 'class':"form-control"}})}}
-                                {{ form_widget(form.Send , {'attr': {'class':"btn btn-primary bi bi-send"}})}}
-                            </div>
-                               {{ form_errors(form)}}
-                        </div>
-                    </form>
                 </div>
-            {{ form_end(form) }}
-             </div>
+                {{ form_start(form,{'attr':{novalidate:'novalidate'}}) }}
+                <div class="footer-chat">
+                    <div class="col-sm-12">
+                        <form class="float-sm-right">
+                            <div class="form-group">
+                                <div class="input-group">
+                                    {{ form_widget(form.Contenu , {  'id':"contenu" , 'attr' : {'placeholder':"chat message" , 'class':"form-control"}})}}
+                                    {{ form_widget(form.Send , {'attr': {'class':"btn btn-primary bi bi-send"}})}}
+                                </div>
+                                {{ form_errors(form)}}
+                            </div>
+                        </form>
+                    </div>
+                    {{ form_end(form) }}
+                </div>
 
             </section>
 
@@ -116,7 +115,7 @@
 
     <script>
 
-</script>
+    </script>
 
 
 

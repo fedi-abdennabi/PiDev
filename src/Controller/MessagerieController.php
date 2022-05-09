@@ -3,13 +3,25 @@
 namespace App\Controller;
 
 use App\Entity\Messagerie;
+use App\Entity\Patient;
 use App\Form\MessagerieType;
+use Knp\Bundle\SnappyBundle\Snappy\Response\PdfResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Knp\Bundle\SnappyBundle\Snappy\Response\JpegResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\Routing\Annotation\Route;
+use Knp\Snappy\Image;
+use Twilio\Rest\Client;
+use Knp\Snappy\Pdf;
+use Dompdf\Dompdf;
+use Dompdf\Options;
+
+
 
 class MessagerieController extends AbstractController
 {
@@ -26,31 +38,48 @@ class MessagerieController extends AbstractController
 	}
 
 	/**
-	 * @Route("/messagerie", name="app_messagerie")
+	 * @Route("/messagerie/{idpatient}", name="app_messagerie")
 	 */
-		public function createAction (Request $request)
+		public function createAction (Request $request ,$idpatient)
 	{
-		$message = new Messagerie();
-		$message->setDateEnvoi(new \DateTime('now'));
-		$message->setDateRecep(new \DateTime('now'));
-		$message->setIdexpert(1);
-		$message->setIdpatient(1);
+		$sid    = "AC6ba42392c5152f017b72adc19b07be3b";
+		$token  = "a4284dfae96718806dc8112abf74193a";
+		$twilio = new Client($sid, $token);
+		$messag = new Messagerie();
+		$messag->setDateEnvoi(new \DateTime('now'));
+		$messag->setDateRecep(new \DateTime('now'));
+		$messag->setIdexpert(1);
+		$messag->setIdpatient($idpatient);
+		$messag->setIdEnv(1);
+		$messag->setIdRec($idpatient);
 
-		$form = $this->createForm(MessagerieType::class,$message);
 
+
+		$form = $this->createForm(MessagerieType::class,$messag);
 		$form->handleRequest($request);
-		$msg = $this->getDoctrine()->getManager()->getRepository(Messagerie::class)->findAll();
+
+		$patient = $this->getDoctrine()->getManager()->getRepository(Patient::class)->findAll();
+		$msg = $this->getDoctrine()->getManager()->getRepository(Messagerie::class)->findBy(array('idpatient'=>$idpatient,'idexpert'=>1));
+        $nom = $this->getDoctrine()->getManager()->getRepository(Patient::class)->findBy(array('idPatient'=>$idpatient));
 		if($form->isSubmitted() && $form->isValid())
 		{
 			$em = $this->getDoctrine()->getManager();
 			$em->persist($form->getData());
 			$em->flush();
-
-			return $this->redirectToRoute('app_messagerie');
+			##	$message = $twilio->messages
+			##	->create("+21697746500", // to
+			##		array(
+			##				"messagingServiceSid" => "MG074b930eca5067c6ba0c435b3d810f40",
+			##			"body" => "Vous avez reçu un nouveau message vérifiez votre messagerie"
+			##		)
+			##	);
+		    ##	print($message->sid);
+			return $this->redirectToRoute('app_messagerie', array(
+				'idpatient' => $idpatient )) ;
 		}
 
 		return $this->render('front/contactus.html.twig',
-			 [ 'form' => $form->createView(),'message' => $msg
+			 [ 'form' => $form->createView(),'messag' => $msg ,'patient'=>$patient , 'n' =>$nom ,
 			 ]);
 	}
 
@@ -63,7 +92,8 @@ class MessagerieController extends AbstractController
 		$em = $this->getDoctrine()->getManager();
 		$em->remove($msg);
 		$em->flush();
-		return $this->redirectToRoute('app_messagerie');
+		return $this->redirectToRoute('app_messagerie', array(
+			'idpatient' => $msg->getIdpatient() )) ;
 	}
 
 
@@ -76,25 +106,66 @@ class MessagerieController extends AbstractController
 		$message = $this->getDoctrine()->getManager()->getRepository(Messagerie::class)->find($id);
 		$message->setDateEnvoi(new \DateTime('now'));
 		$message->setDateRecep(new \DateTime('now'));
-		$message->setIdexpert(1);
-		$message->setIdpatient(1);
 
 		$form = $this->createForm(MessagerieType::class,$message);
 
 		$form->handleRequest($request);
-		$msg = $this->getDoctrine()->getManager()->getRepository(Messagerie::class)->findAll();
-
+		$patient = $this->getDoctrine()->getManager()->getRepository(Patient::class)->findAll();
+		$msg = $this->getDoctrine()->getManager()->getRepository(Messagerie::class)->findBy(array('idpatient'=>$message->getIdpatient() , 'idexpert' => $message->getIdexpert()));
+		$nom = $this->getDoctrine()->getManager()->getRepository(Patient::class)->findBy(array('idPatient'=>$id));
 		if($form->isSubmitted() && $form->isValid())
 		{
 			$em = $this->getDoctrine()->getManager();
 			$em->flush();
 
-			return $this->redirectToRoute('app_messagerie');
+			return $this->redirectToRoute('app_messagerie', array(
+				'idpatient' => $message->getIdpatient()));
 		}
 
 		return $this->render('front/contactus.html.twig',
-			[ 'form' => $form->createView(),'message' => $msg
+			[ 'form' => $form->createView(),'messag' => $msg ,'patient'=>$patient , 'n' =>$nom ,
 			]);
 	}
+
+	/**
+	 * @Route("/list/{id}", name="list")
+	 */
+
+	public function list(Request $request ,$id){
+		// Configure Dompdf according to your needs
+		$pdfOptions = new Options();
+		$pdfOptions->set('defaultFont', 'Arial');
+
+
+		// Instantiate Dompdf with our options
+		$dompdf = new Dompdf($pdfOptions);
+
+		$message = $this->getDoctrine()->getManager()->getRepository(Messagerie::class)->find($id);
+		$msg = $this->getDoctrine()->getManager()->getRepository(Messagerie::class)->findBy(array('idpatient' => $id , 'idexpert' => 1));
+		$nom=$this->getDoctrine()->getManager()->getRepository(Patient::class)->findBy(array('idPatient'=>$id));
+
+
+		$html = $this->renderView('front/pdf.html.twig', [
+			'messag' => $msg ,  'nom' => $nom  ,
+		]);
+
+		// Load HTML to Dompdf
+		$dompdf->loadHtml($html);
+
+		// (Optional) Setup the paper size and orientation 'portrait' or 'portrait'
+		$dompdf->setPaper('A4', 'portrait');
+
+		// Render the HTML as PDF
+		$dompdf->render();
+
+		// Output the generated PDF to Browser (force download)
+		$dompdf->stream("mypdf.pdf", [
+			"Attachment" => true
+		]);
+	}
+
+
+
+
 
 }

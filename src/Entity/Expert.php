@@ -70,5 +70,133 @@ class Expert
      */
     private $adressemail;
 
+	/**
+	 * @return int
+	 */
+	public function getIdexpert(): int
+	{
+		return $this->idexpert;
+	}
+
+	/**
+	 * @param int $idexpert
+	 */
+	public function setIdexpert(int $idexpert): void
+	{
+		$this->idexpert = $idexpert;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getNom(): string
+	{
+		return $this->nom;
+	}
+
+	/**
+	 * @param string $nom
+	 */
+	public function setNom(string $nom): void
+	{
+		$this->nom = $nom;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getPrenom(): string
+	{
+		return $this->prenom;
+	}
+
+	/**
+	 * @param string $prenom
+	 */
+	public function setPrenom(string $prenom): void
+	{
+		$this->prenom = $prenom;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getPassword(): string
+	{
+		return $this->password;
+	}
+
+	/**
+	 * @param string $password
+	 */
+	public function setPassword(string $password): void
+	{
+		$this->password = $password;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getAdresse(): string
+	{
+		return $this->adresse;
+	}
+
+	/**
+	 * @param string $adresse
+	 */
+	public function setAdresse(string $adresse): void
+	{
+		$this->adresse = $adresse;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getProfession(): string
+	{
+		return $this->profession;
+	}
+
+	/**
+	 * @param string $profession
+	 */
+	public function setProfession(string $profession): void
+	{
+		$this->profession = $profession;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getTel(): int
+	{
+		return $this->tel;
+	}
+
+	/**
+	 * @param int $tel
+	 */
+	public function setTel(int $tel): void
+	{
+		$this->tel = $tel;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getAdressemail(): string
+	{
+		return $this->adressemail;
+	}
+
+	/**
+	 * @param string $adressemail
+	 */
+	public function setAdressemail(string $adressemail): void
+	{
+		$this->adressemail = $adressemail;
+	}
+
 
 }

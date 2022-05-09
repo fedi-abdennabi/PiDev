@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
+use Vangrg\ProfanityBundle\Validator\Constraints as ProfanityAssert;
 /**
  * Messagerie
  *
@@ -24,13 +25,14 @@ class Messagerie
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="date_envoi", type="date", nullable=false)
+     * @ORM\Column(name="date_envoi", type="datetime", nullable=false)
      */
     private $dateEnvoi;
 
     /**
      * @var string
      * @Assert\NotBlank(message="Message vide")
+	 * @ProfanityAssert\ProfanityCheck
 	 * @Assert\Length(
 	 *     min=1,
 	 *     max=100,
@@ -45,7 +47,7 @@ class Messagerie
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="date_recep", type="date", nullable=false)
+     * @ORM\Column(name="date_recep", type="datetime", nullable=false)
      */
     private $dateRecep;
 
@@ -62,6 +64,17 @@ class Messagerie
      * @ORM\Column(name="IdPatient", type="integer", nullable=false)
      */
     private $idpatient;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $IdEnv;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $IdRec;
+
 
 	/**
 	 * @return int
@@ -158,6 +171,30 @@ class Messagerie
 	{
 		$this->idpatient = $idpatient;
 	}
+
+    public function getIdEnv(): ?int
+    {
+        return $this->IdEnv;
+    }
+
+    public function setIdEnv(int $IdEnv): self
+    {
+        $this->IdEnv = $IdEnv;
+
+        return $this;
+    }
+
+    public function getIdRec(): ?int
+    {
+        return $this->IdRec;
+    }
+
+    public function setIdRec(int $IdRec): self
+    {
+        $this->IdRec = $IdRec;
+
+        return $this;
+    }
 
 
 }
